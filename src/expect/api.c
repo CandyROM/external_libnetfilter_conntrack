@@ -329,7 +329,7 @@ void nfexp_set_attr(struct nf_expect *exp,
  */
 void nfexp_set_attr_u8(struct nf_expect *exp,
 		       const enum nf_expect_attr type, 
-		       u_int8_t value)
+		       uint8_t value)
 {
 	nfexp_set_attr(exp, type, &value);
 }
@@ -342,7 +342,7 @@ void nfexp_set_attr_u8(struct nf_expect *exp,
  */
 void nfexp_set_attr_u16(struct nf_expect *exp,
 			const enum nf_expect_attr type, 
-			u_int16_t value)
+			uint16_t value)
 {
 	nfexp_set_attr(exp, type, &value);
 }
@@ -355,7 +355,7 @@ void nfexp_set_attr_u16(struct nf_expect *exp,
  */
 void nfexp_set_attr_u32(struct nf_expect *exp,
 			const enum nf_expect_attr type, 
-			u_int32_t value)
+			uint32_t value)
 {
 	nfexp_set_attr(exp, type, &value);
 }
@@ -395,10 +395,10 @@ const void *nfexp_get_attr(const struct nf_expect *exp,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfexp_attr_is_set.
  */
-u_int8_t nfexp_get_attr_u8(const struct nf_expect *exp,
+uint8_t nfexp_get_attr_u8(const struct nf_expect *exp,
 			   const enum nf_expect_attr type)
 {
-	const u_int8_t *ret = nfexp_get_attr(exp, type);
+	const uint8_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -411,10 +411,10 @@ u_int8_t nfexp_get_attr_u8(const struct nf_expect *exp,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfexp_attr_is_set.
  */
-u_int16_t nfexp_get_attr_u16(const struct nf_expect *exp,
+uint16_t nfexp_get_attr_u16(const struct nf_expect *exp,
 			     const enum nf_expect_attr type)
 {
-	const u_int16_t *ret = nfexp_get_attr(exp, type);
+	const uint16_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -427,10 +427,10 @@ u_int16_t nfexp_get_attr_u16(const struct nf_expect *exp,
  * set, 0 is returned. In order to check if the attribute is set or not,
  * use nfexp_attr_is_set.
  */
-u_int32_t nfexp_get_attr_u32(const struct nf_expect *exp,
+uint32_t nfexp_get_attr_u32(const struct nf_expect *exp,
 			    const enum nf_expect_attr type)
 {
-	const u_int32_t *ret = nfexp_get_attr(exp, type);
+	const uint32_t *ret = nfexp_get_attr(exp, type);
 	return ret == NULL ? 0 : *ret;
 }
 
@@ -504,8 +504,8 @@ int nfexp_attr_unset(struct nf_expect *exp,
 int nfexp_build_expect(struct nfnl_subsys_handle *ssh,
 		       void *req,
 		       size_t size,
-		       u_int16_t type,
-		       u_int16_t flags,
+		       uint16_t type,
+		       uint16_t flags,
 		       const struct nf_expect *exp)
 {
 	assert(ssh != NULL);
@@ -521,7 +521,7 @@ __build_query_exp(struct nfnl_subsys_handle *ssh,
 		  const void *data, void *buffer, unsigned int size)
 {
 	struct nfnlhdr *req = buffer;
-	const u_int8_t *family = data;
+	const uint8_t *family = data;
 
 	assert(ssh != NULL);
 	assert(data != NULL);
@@ -580,7 +580,7 @@ __build_query_exp(struct nfnl_subsys_handle *ssh,
  * 	NFEXP_Q_FLUSH
  * 	NFEXP_Q_DUMP
  * 
- * Pass a valid pointer to the protocol family (u_int8_t)
+ * Pass a valid pointer to the protocol family (uint8_t)
  * 
  * On success, 0 is returned. On error, -1 is returned and errno is set
  * appropiately.
@@ -665,20 +665,20 @@ int nfexp_parse_expect(enum nf_conntrack_msg_type type,
  * On error, -1 is returned and errno is explicitely set. On success, 0
  * is returned.
  */
-#define QUERY_SIZE 4096
 int nfexp_query(struct nfct_handle *h,
 	        const enum nf_conntrack_query qt,
 	        const void *data)
 {
+	const size_t size = 4096;	/* enough for now */
 	union {
-		char buffer[QUERY_SIZE];
+		char buffer[size];
 		struct nfnlhdr req;
 	} u;
 
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, QUERY_SIZE) == -1)
+	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
 		return -1;
 
 	return nfnl_query(h->nfnlh, &u.req.nlh);
@@ -701,15 +701,16 @@ int nfexp_send(struct nfct_handle *h,
 	       const enum nf_conntrack_query qt,
 	       const void *data)
 {
+	const size_t size = 4096;	/* enough for now */
 	union {
-		char buffer[QUERY_SIZE];
+		char buffer[size];
 		struct nfnlhdr req;
 	} u;
 
 	assert(h != NULL);
 	assert(data != NULL);
 
-	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, QUERY_SIZE) == -1)
+	if (__build_query_exp(h->nfnlssh_exp, qt, data, &u.req, size) == -1)
 		return -1;
 
 	return nfnl_send(h->nfnlh, &u.req.nlh);
